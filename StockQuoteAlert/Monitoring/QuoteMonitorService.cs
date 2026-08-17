@@ -43,7 +43,7 @@ public class QuoteMonitorService(
         logger.LogInformation("Monitoramento encerrado.");
     }
 
-    private async Task CheckQuoteAsync(CancellationToken cancellationToken)
+    public async Task CheckQuoteAsync(CancellationToken cancellationToken)
     {
         try
         {
