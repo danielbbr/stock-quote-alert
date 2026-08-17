@@ -55,10 +55,12 @@ public class QuoteMonitorService(
                 return;
             }
 
-            var zone = alertDecider.CurrentZone;
-            await notifier.SendAsync(Subject(zone), Body(zone, price), cancellationToken);
+            var advice = alertDecider.CurrentZone == PriceZone.Sell ? TradeAdvice.Sell : TradeAdvice.Buy;
 
-            logger.LogInformation("Alerta de {Zone} enviado.", zone);
+            await notifier.SendAsync(
+                new Alert(advice, args.Ticker, price, args.SellPrice, args.BuyPrice), cancellationToken);
+
+            logger.LogInformation("Alerta de {Advice} enviado.", advice);
         }
         catch (OperationCanceledException)
         {
@@ -69,14 +71,6 @@ public class QuoteMonitorService(
             logger.LogError(ex, "Falha no ciclo de monitoramento de {Ticker}.", args.Ticker);
         }
     }
-
-    private string Subject(PriceZone zone) => zone == PriceZone.Sell
-        ? $"Hora de vender {args.Ticker}"
-        : $"Hora de comprar {args.Ticker}";
-
-    private string Body(PriceZone zone, decimal price) => zone == PriceZone.Sell
-        ? $"{args.Ticker} está cotado a {Money(price)}, no seu preço de venda ({Money(args.SellPrice)}) ou acima dele."
-        : $"{args.Ticker} está cotado a {Money(price)}, no seu preço de compra ({Money(args.BuyPrice)}) ou abaixo dele.";
 
     private static string Money(decimal value) => value.ToString("C", PtBr);
 }

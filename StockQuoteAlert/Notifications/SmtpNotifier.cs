@@ -12,7 +12,7 @@ public class SmtpNotifier : INotifier
         _options = options;
     }
 
-    public async Task SendAsync(string subject, string body, CancellationToken cancellationToken)
+    public async Task SendAsync(Alert alert, CancellationToken cancellationToken)
     {
         using var client = new SmtpClient(_options.Host, _options.Port)
         {
@@ -24,7 +24,8 @@ public class SmtpNotifier : INotifier
             client.Credentials = new NetworkCredential(_options.User, _options.Password);
         }
 
-        using var message = new MailMessage(_options.From, _options.To, subject, body);
+        using var message = new MailMessage(
+            _options.From, _options.To, AlertEmailFormatter.Subject(alert), AlertEmailFormatter.Body(alert));
 
         await client.SendMailAsync(message, cancellationToken);
     }
