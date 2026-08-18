@@ -13,10 +13,10 @@ public class CommandLineParserTests
 
         Assert.True(result.IsSuccess);
         Assert.Null(result.Error);
-        Assert.NotNull(result.Args);
-        Assert.Equal(ticker, result.Args.Ticker);
-        Assert.Equal(22.67m, result.Args.SellPrice);
-        Assert.Equal(22.59m, result.Args.BuyPrice);
+        Assert.NotNull(result.Asset);
+        Assert.Equal(ticker, result.Asset.Ticker);
+        Assert.Equal(22.67m, result.Asset.SellPrice);
+        Assert.Equal(22.59m, result.Asset.BuyPrice);
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class CommandLineParserTests
         var result = CommandLineParser.Parse([" petr4 ", "22.67", "22.59"]);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal("PETR4", result.Args!.Ticker);
+        Assert.Equal("PETR4", result.Asset!.Ticker);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class CommandLineParserTests
     private static void AssertFailure(CommandLineResult result)
     {
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Args);
+        Assert.Null(result.Asset);
         Assert.NotNull(result.Error);
     }
 }

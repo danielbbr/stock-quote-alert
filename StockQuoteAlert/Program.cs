@@ -14,7 +14,7 @@ if (!parseResult.IsSuccess)
     return 1;
 }
 
-var commandLineArgs = parseResult.Args!;
+var monitoredAsset = parseResult.Asset!;
 
 var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
 {
@@ -33,9 +33,9 @@ void AddValidatedOptions<TOptions>(string sectionName) where TOptions : class =>
         .ValidateDataAnnotations()
         .ValidateOnStart();
 
-builder.Services.AddSingleton(commandLineArgs);
+builder.Services.AddSingleton(monitoredAsset);
 
-builder.Services.AddSingleton(new PriceZoneClassifier(commandLineArgs.SellPrice, commandLineArgs.BuyPrice));
+builder.Services.AddSingleton(new PriceZoneClassifier(monitoredAsset.SellPrice, monitoredAsset.BuyPrice));
 
 builder.Services.AddSingleton<INotifier>(sp =>
     new SmtpNotifier(sp.GetRequiredService<IOptions<SmtpOptions>>().Value));

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using StockQuoteAlert.CLI;
 using StockQuoteAlert.Monitoring;
 using StockQuoteAlert.Notifications;
 using StockQuoteAlert.Tests.Fakes;
@@ -13,7 +12,7 @@ public class QuoteMonitorServiceTests
     private const decimal BuyPrice = 22.59m;
 
     private static QuoteMonitorService NewService(FakeQuoteProvider quotes, FakeNotifier notifier) =>
-        new(new CommandLineArgs("PETR4", SellPrice, BuyPrice),
+        new(new MonitoredAsset("PETR4", SellPrice, BuyPrice),
             quotes,
             new PriceZoneClassifier(SellPrice, BuyPrice),
             notifier,

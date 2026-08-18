@@ -1,8 +1,7 @@
 using System.Globalization;
+using StockQuoteAlert.Monitoring;
 
 namespace StockQuoteAlert.CLI;
-
-public record CommandLineArgs(string Ticker, decimal SellPrice, decimal BuyPrice);
 
 public static class CommandLineParser
 {
@@ -36,7 +35,7 @@ public static class CommandLineParser
                 $"O preço de compra ({buyPrice}) deve ser menor que o preço de venda ({sellPrice}).");
         }
 
-        return CommandLineResult.Success(new CommandLineArgs(ticker, sellPrice, buyPrice));
+        return CommandLineResult.Success(new MonitoredAsset(ticker, sellPrice, buyPrice));
     }
 
     private static bool TryParsePrice(string value, string label, out decimal price, out string error)
@@ -64,18 +63,18 @@ public static class CommandLineParser
 
 public record CommandLineResult
 {
-    private CommandLineResult(CommandLineArgs? args, string? error)
+    private CommandLineResult(MonitoredAsset? asset, string? error)
     {
-        Args = args;
+        Asset = asset;
         Error = error;
     }
 
-    public CommandLineArgs? Args { get; }
+    public MonitoredAsset? Asset { get; }
 
     public string? Error { get; }
 
     public bool IsSuccess => Error is null;
 
-    public static CommandLineResult Success(CommandLineArgs args) => new(args, null);
+    public static CommandLineResult Success(MonitoredAsset asset) => new(asset, null);
     public static CommandLineResult Failure(string error) => new(null, error);
 }

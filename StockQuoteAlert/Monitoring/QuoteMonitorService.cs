@@ -2,14 +2,13 @@ using System.Globalization;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using StockQuoteAlert.CLI;
 using StockQuoteAlert.Notifications;
 using StockQuoteAlert.Quotes;
 
 namespace StockQuoteAlert.Monitoring;
 
 public class QuoteMonitorService(
-    CommandLineArgs args,
+    MonitoredAsset asset,
     IQuoteProvider quoteProvider,
     PriceZoneClassifier classifier,
     INotifier notifier,
@@ -28,7 +27,7 @@ public class QuoteMonitorService(
     {
         logger.LogInformation(
             "Monitorando {Ticker} a cada {Interval}s. Venda a partir de {SellPrice}, compra a partir de {BuyPrice}.",
-            args.Ticker, _interval.TotalSeconds, Money(args.SellPrice), Money(args.BuyPrice));
+            asset.Ticker, _interval.TotalSeconds, Money(asset.SellPrice), Money(asset.BuyPrice));
 
         using var timer = new PeriodicTimer(_interval);
 
@@ -51,8 +50,8 @@ public class QuoteMonitorService(
     {
         try
         {
-            var price = await quoteProvider.GetPriceAsync(args.Ticker, cancellationToken);
-            logger.LogInformation("{Ticker} cotado a {Price}.", args.Ticker, Money(price));
+            var price = await quoteProvider.GetPriceAsync(asset.Ticker, cancellationToken);
+            logger.LogInformation("{Ticker} cotado a {Price}.", asset.Ticker, Money(price));
 
             var zone = classifier.ZoneFor(price);
 
@@ -61,7 +60,7 @@ public class QuoteMonitorService(
                 var advice = zone == PriceZone.Sell ? TradeAdvice.Sell : TradeAdvice.Buy;
 
                 await notifier.SendAsync(
-                    new Alert(advice, args.Ticker, price, args.SellPrice, args.BuyPrice), cancellationToken);
+                    new Alert(advice, asset.Ticker, price, asset.SellPrice, asset.BuyPrice), cancellationToken);
 
                 logger.LogInformation("Alerta de {Advice} enviado.", advice);
             }
@@ -74,7 +73,7 @@ public class QuoteMonitorService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Falha no ciclo de monitoramento de {Ticker}.", args.Ticker);
+            logger.LogError(ex, "Falha no ciclo de monitoramento de {Ticker}.", asset.Ticker);
         }
     }
 
