@@ -23,9 +23,15 @@ var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
 
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 
-builder.Services.Configure<BrapiOptions>(builder.Configuration.GetSection(BrapiOptions.SectionName));
-builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(SmtpOptions.SectionName));
-builder.Services.Configure<MonitoringOptions>(builder.Configuration.GetSection(MonitoringOptions.SectionName));
+AddValidatedOptions<BrapiOptions>(BrapiOptions.SectionName);
+AddValidatedOptions<SmtpOptions>(SmtpOptions.SectionName);
+AddValidatedOptions<MonitoringOptions>(MonitoringOptions.SectionName);
+
+void AddValidatedOptions<TOptions>(string sectionName) where TOptions : class =>
+    builder.Services.AddOptions<TOptions>()
+        .Bind(builder.Configuration.GetSection(sectionName))
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
 
 builder.Services.AddSingleton(commandLineArgs);
 
@@ -40,6 +46,23 @@ builder.Services.AddHttpClient<IQuoteProvider, BrapiQuoteProvider>((httpClient, 
 builder.Services.AddHostedService<QuoteMonitorService>();
 
 var host = builder.Build();
+
+try
+{
+    host.Services.GetRequiredService<IStartupValidator>().Validate();
+}
+catch (OptionsValidationException ex)
+{
+    Console.Error.WriteLine("Configuração inválida:");
+
+    foreach (var failure in ex.Failures)
+    {
+        Console.Error.WriteLine($"  - {failure}");
+    }
+
+    return 1;
+}
+
 await host.RunAsync();
 
 return 0;
