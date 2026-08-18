@@ -26,7 +26,7 @@ builder.Services.Configure<MonitoringOptions>(builder.Configuration.GetSection(M
 
 builder.Services.AddSingleton(commandLineArgs);
 
-builder.Services.AddSingleton(new AlertDecider(commandLineArgs.SellPrice, commandLineArgs.BuyPrice));
+builder.Services.AddSingleton(new PriceZoneClassifier(commandLineArgs.SellPrice, commandLineArgs.BuyPrice));
 
 builder.Services.AddSingleton<INotifier>(sp =>
     new SmtpNotifier(sp.GetRequiredService<IOptions<SmtpOptions>>().Value));

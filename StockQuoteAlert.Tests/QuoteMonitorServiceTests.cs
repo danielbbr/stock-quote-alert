@@ -15,7 +15,7 @@ public class QuoteMonitorServiceTests
     private static QuoteMonitorService NewService(FakeQuoteProvider quotes, FakeNotifier notifier) =>
         new(new CommandLineArgs("PETR4", SellPrice, BuyPrice),
             quotes,
-            new AlertDecider(SellPrice, BuyPrice),
+            new PriceZoneClassifier(SellPrice, BuyPrice),
             notifier,
             Options.Create(new MonitoringOptions()),
             NullLogger<QuoteMonitorService>.Instance);
@@ -48,5 +48,29 @@ public class QuoteMonitorServiceTests
         await NewService(new FakeQuoteProvider(22.62m), notifier).CheckQuoteAsync(CancellationToken.None);
 
         Assert.Empty(notifier.Sent);
+    }
+
+    [Fact]
+    public async Task CheckQuoteAsync_WhileThePriceStaysInTheSameZone_AlertsOnlyOnce()
+    {
+        var notifier = new FakeNotifier();
+        var service = NewService(new FakeQuoteProvider(22.80m, 22.90m), notifier);
+
+        await service.CheckQuoteAsync(CancellationToken.None);
+        await service.CheckQuoteAsync(CancellationToken.None);
+
+        Assert.Single(notifier.Sent);
+    }
+
+    [Fact]
+    public async Task CheckQuoteAsync_WhenSendingTheAlertFails_RetriesOnTheNextCycle()
+    {
+        var notifier = new FakeNotifier { FailNextSend = true };
+        var service = NewService(new FakeQuoteProvider(22.80m, 22.85m), notifier);
+
+        await service.CheckQuoteAsync(CancellationToken.None);
+        await service.CheckQuoteAsync(CancellationToken.None);
+
+        Assert.Equal(TradeAdvice.Sell, Assert.Single(notifier.Sent).Advice);
     }
 }
