@@ -30,8 +30,6 @@ public static class AlertEmailFormatter
                 Cotação: {Money(alert.Price)}
                 Referência de venda: {Money(alert.SellPrice)}
                 Referência de compra: {Money(alert.BuyPrice)}
-
-                --
                 """;
     }
 
