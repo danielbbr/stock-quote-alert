@@ -16,7 +16,10 @@ if (!parseResult.IsSuccess)
 
 var commandLineArgs = parseResult.Args!;
 
-var builder = Host.CreateApplicationBuilder();
+var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+{
+    ContentRootPath = AppContext.BaseDirectory
+});
 
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 
