@@ -6,8 +6,10 @@ public class PriceZoneClassifierTests
 {
     [Theory]
     [InlineData(22.60, PriceZone.Neutral)]
-    [InlineData(22.67, PriceZone.Sell)]
-    [InlineData(22.59, PriceZone.Buy)]
+    [InlineData(22.67, PriceZone.Neutral)]
+    [InlineData(22.68, PriceZone.Sell)]
+    [InlineData(22.59, PriceZone.Neutral)]
+    [InlineData(22.58, PriceZone.Buy)]
     public void ZoneFor_ClassifiesThePrice(decimal price, PriceZone expectedZone)
     {
         var classifier = new PriceZoneClassifier(sellPrice: 22.67m, buyPrice: 22.59m);

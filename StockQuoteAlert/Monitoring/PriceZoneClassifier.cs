@@ -20,12 +20,12 @@ public class PriceZoneClassifier
 
     public PriceZone ZoneFor(decimal price)
     {
-        if (price >= _sellPrice)
+        if (price > _sellPrice)
         {
             return PriceZone.Sell;
         }
 
-        if (price <= _buyPrice)
+        if (price < _buyPrice)
         {
             return PriceZone.Buy;
         }

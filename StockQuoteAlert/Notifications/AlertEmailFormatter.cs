@@ -18,8 +18,8 @@ public static class AlertEmailFormatter
         var action = alert.Advice == TradeAdvice.Sell ? "VENDER" : "COMPRAR";
 
         var summary = alert.Advice == TradeAdvice.Sell
-            ? $"A cotação de {alert.Ticker} atingiu {Money(alert.Price)}, valor igual ou superior ao seu preço de referência de venda, de {Money(alert.SellPrice)}."
-            : $"A cotação de {alert.Ticker} atingiu {Money(alert.Price)}, valor igual ou inferior ao seu preço de referência de compra, de {Money(alert.BuyPrice)}.";
+            ? $"A cotação de {alert.Ticker} atingiu {Money(alert.Price)}, valor acima do seu preço de referência de venda, de {Money(alert.SellPrice)}."
+            : $"A cotação de {alert.Ticker} atingiu {Money(alert.Price)}, valor abaixo do seu preço de referência de compra, de {Money(alert.BuyPrice)}.";
 
         return $"""
                 Recomendação: {action} {alert.Ticker}
