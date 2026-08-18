@@ -6,7 +6,7 @@ namespace StockQuoteAlert.Tests;
 
 public class BrapiQuoteProviderTests
 {
-    private const string Payload = """{"results":[{"regularMarketPrice":22.67}]}""";
+    private const string Payload = """{"results":[{"data":{"regularMarketPrice":22.67}}]}""";
 
     private static BrapiQuoteProvider NewProvider(FakeHttpMessageHandler handler) =>
         new(new HttpClient(handler),
@@ -29,7 +29,7 @@ public class BrapiQuoteProviderTests
 
         await NewProvider(handler).GetPriceAsync("PETR4", CancellationToken.None);
 
-        Assert.Equal("https://brapi.dev/api/quote/PETR4", handler.RequestUrl);
+        Assert.Equal("https://brapi.dev/api/v2/stocks/quote?symbols=PETR4", handler.RequestUrl);
         Assert.Equal("Bearer token-de-teste", handler.Authorization);
     }
 
