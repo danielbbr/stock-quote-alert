@@ -13,6 +13,13 @@ public static class CommandLineParser
             return CommandLineResult.Failure($"Esperado 3 argumentos, recebido {args.Length}.");
         }
 
+        var ticker = args[0].Trim().ToUpperInvariant();
+
+        if (ticker.Length == 0)
+        {
+            return CommandLineResult.Failure("O ativo não pode ser vazio.");
+        }
+
         if (!TryParsePrice(args[1], "Preço de venda", out var sellPrice, out var error))
         {
             return CommandLineResult.Failure(error);
@@ -29,7 +36,7 @@ public static class CommandLineParser
                 $"O preço de compra ({buyPrice}) deve ser menor que o preço de venda ({sellPrice}).");
         }
 
-        return CommandLineResult.Success(new CommandLineArgs(args[0], sellPrice, buyPrice));
+        return CommandLineResult.Success(new CommandLineArgs(ticker, sellPrice, buyPrice));
     }
 
     private static bool TryParsePrice(string value, string label, out decimal price, out string error)

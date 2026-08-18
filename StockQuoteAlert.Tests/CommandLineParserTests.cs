@@ -20,6 +20,15 @@ public class CommandLineParserTests
     }
 
     [Fact]
+    public void Parse_NormalizesTheTicker()
+    {
+        var result = CommandLineParser.Parse([" petr4 ", "22.67", "22.59"]);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("PETR4", result.Args!.Ticker);
+    }
+
+    [Fact]
     public void Parse_WithWrongArgumentCount_ReturnsError()
     {
         AssertFailure(CommandLineParser.Parse(["PETR4", "22.67"]));
