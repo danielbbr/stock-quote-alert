@@ -62,8 +62,18 @@ public static class CommandLineParser
     }
 }
 
-public record CommandLineResult(CommandLineArgs? Args, string? Error)
+public record CommandLineResult
 {
+    private CommandLineResult(CommandLineArgs? args, string? error)
+    {
+        Args = args;
+        Error = error;
+    }
+
+    public CommandLineArgs? Args { get; }
+
+    public string? Error { get; }
+
     public bool IsSuccess => Error is null;
 
     public static CommandLineResult Success(CommandLineArgs args) => new(args, null);
