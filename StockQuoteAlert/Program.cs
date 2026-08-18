@@ -41,7 +41,12 @@ builder.Services.AddSingleton<INotifier>(sp =>
     new SmtpNotifier(sp.GetRequiredService<IOptions<SmtpOptions>>().Value));
 
 builder.Services.AddHttpClient<IQuoteProvider, BrapiQuoteProvider>((httpClient, sp) =>
-    new BrapiQuoteProvider(httpClient, sp.GetRequiredService<IOptions<BrapiOptions>>().Value));
+        new BrapiQuoteProvider(httpClient, sp.GetRequiredService<IOptions<BrapiOptions>>().Value))
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        PooledConnectionLifetime = TimeSpan.FromMinutes(5)
+    })
+    .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
 builder.Services.AddHostedService<QuoteMonitorService>();
 
